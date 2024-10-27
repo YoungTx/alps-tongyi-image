@@ -3,7 +3,7 @@ import {createErrorResponse, getPluginSettingsFromRequest, PluginErrorType} from
 import {IImageGenerationResponse, IImageGenerationResult, IImageGenerationStatusResponse, Settings} from "@/type";
 import axios from "axios";
 
-const BASE_URL = process.env.BASE_URL || 'https://api.alibabacloud.com'
+const BASE_URL = process.env.BASE_URL || 'https://dashscope.aliyuncs.com/api/v1'
 
 
 export async function POST(req: NextRequest) {
