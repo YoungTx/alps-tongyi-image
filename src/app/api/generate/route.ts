@@ -91,10 +91,8 @@ export async function POST(req: NextRequest) {
 
 		// 构建 Markdown 格式的响应
 		const markdownResponse = `
-      图片已成功生成！
-
+      图片：
       ![Generated Image](${imageUrl})
-
       *提示词: ${input.prompt}*
       ${input.negative_prompt ? `*反向提示词: ${input.negative_prompt}*` : ''}
       *模型: ${model}*
