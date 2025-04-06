@@ -3,8 +3,7 @@ import {createErrorResponse, getPluginSettingsFromRequest, PluginErrorType} from
 import {IImageGenerationResponse, IImageGenerationResult, IImageGenerationStatusResponse, Settings} from "@/type";
 import axios from "axios";
 
-const BASE_URL = process.env.BASE_URL || 'https://api.alibabacloud.com'
-
+const BASE_URL = process.env.BASE_URL || 'https://dashscope.aliyuncs.com/api/v1'
 
 export async function POST(req: NextRequest) {
 	try {
@@ -17,19 +16,23 @@ export async function POST(req: NextRequest) {
 		const apiKey = settings.ALIBABA_API_KEY
 
 		const body = await req.json();
-		const { prompt } = body
+		const {  model, input, parameters } = body;
+        
+		// 设置默认参数
+		const requestParameters = {
+			size: '1024*1024',
+			n: 1,
+			prompt_extend: true,
+			...parameters
+		};
 
 		// 调用阿里云的API生成图片
 		const response = await axios.post(
 			`${BASE_URL}/services/aigc/text2image/image-synthesis`,
 			{
-				model: 'wanx-v1',
-				input: {
-					prompt: prompt
-				},
-				parameters: {
-					n: 1,
-				},
+				model: model,
+				input: input,
+				parameters: requestParameters,
 			},
 			{
 				headers: {
@@ -57,7 +60,6 @@ export async function POST(req: NextRequest) {
 		const taskId = respData.output.task_id;
 
 		// 检查图片生成的状态
-
 		let statusData: IImageGenerationStatusResponse;
 
 		do {
@@ -89,11 +91,12 @@ export async function POST(req: NextRequest) {
 
 		// 构建 Markdown 格式的响应
 		const markdownResponse = `
-      图片已成功生成！
-
+      图片：
       ![Generated Image](${imageUrl})
-
-      *提示词: ${prompt}*
+      *提示词: ${input.prompt}*
+      ${input.negative_prompt ? `*反向提示词: ${input.negative_prompt}*` : ''}
+      *模型: ${model}*
+      *尺寸: ${requestParameters.size}*
     `.trim();
 
 		// 返回生成的图片URL
